@@ -28,13 +28,12 @@ def overlap(particles,m,origin,resolution):
 def xy_tomap(x,y,origin,resolution):
     return int(2047-(y+51.225)/0.05), int((x+51.225)/0.05)
 
-def run(environment, maps):
+def run(environment, maps, save_data):
     map_names=["bedroom","dining_room","garage","obstacle_world","study","turtle_world"]
     learning_rates =[1 for map_name in map_names]
     decay=0
     obj={environment +"_"+map_name: 1/len(map_names) for map_name in map_names}
     beliefs_dict = {environment+"_"+map_name: [1/len(map_names)] for map_name in map_names}
-    iteration = 0
     k = 0
     while True:
         k+=1
@@ -91,13 +90,17 @@ def run(environment, maps):
                     if belief == b:
                         print("Rank {}: {} with belief: {}".format(idx+1, map_name, belief))
             break
+    if save_data:
+        df = pd.DataFrame(data=beliefs_dict)
+        out = "data/"+environment+"/results.csv"
+        df.to_csv(out)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--environment', help='True environment the robot is in.')
+    parser.add_argument('--environment', required=True, help='True environment the robot is in.')
+    parser.add_argument('--save', action='store_true', default=False, help="Store beliefs at every iteration to csv")
     args = parser.parse_args()
-    environment = args.environment
-
     maps = utils.load_maps()
-    run(environment, maps)
+    run(args.environment, maps, args.save)
     
