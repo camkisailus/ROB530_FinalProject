@@ -72,7 +72,7 @@ def run(environment, maps, save_data):
             m=maps[map_name].map
             origin=maps[map_name].origin
             resolution=maps[map_name].resolution
-            score, learning_rates [i] =objective(poses, cov, learning_rates [i], decay, m, particles, origin, resolution)
+            score, learning_rates[i] =objective(poses, cov, learning_rates[i], decay, m, particles, origin, resolution)
 
             obj[environment+"_"+map_name] = obj[environment+"_"+map_name]*score
             sum += obj[environment+"_"+map_name]
@@ -92,7 +92,7 @@ def run(environment, maps, save_data):
             break
     if save_data:
         df = pd.DataFrame(data=beliefs_dict)
-        out = "data/"+environment+"/results.csv"
+        out = "data/"+environment+"/lrcov_norm_ablation_results.csv"
         df.to_csv(out)
 
 
