@@ -5,14 +5,13 @@ import argparse
 import pandas as pd
 import utils
 
-def objective(mu, cov, learning_rate, decay_rate, m, particles, origin, resolution):
+def objective(mu, cov, m, particles, origin, resolution):
 
     cov_norm = np.sqrt(float(cov[0,0])**2+float(cov[1,1])**2+float(cov[5,5])**2)
-    learning_rate = (learning_rate)/(1+decay_rate)
     num_particles = len(particles)
-    f=learning_rate /((cov_norm * overlap(particles,m,origin,resolution)))
+    f= 1 /(cov_norm * overlap(particles,m,origin,resolution))
     # print("cov: {}, overlap: {}".format(cov, overlap(particles,m,origin,resolution)))
-    return f, learning_rate
+    return f
 
 def overlap(particles,m,origin,resolution):
     count=0.0
@@ -30,8 +29,6 @@ def xy_tomap(x,y,origin,resolution):
 
 def run(environment, maps, save_data):
     map_names=["bedroom","dining_room","garage","obstacle_world","study","turtle_world"]
-    learning_rates =[1 for map_name in map_names]
-    decay=0
     obj={environment +"_"+map_name: 1/len(map_names) for map_name in map_names}
     beliefs_dict = {environment+"_"+map_name: [1/len(map_names)] for map_name in map_names}
     k = 0
@@ -72,7 +69,7 @@ def run(environment, maps, save_data):
             m=maps[map_name].map
             origin=maps[map_name].origin
             resolution=maps[map_name].resolution
-            score, learning_rates[i] =objective(poses, cov, learning_rates[i], decay, m, particles, origin, resolution)
+            score =objective(poses, cov, m, particles, origin, resolution)
 
             obj[environment+"_"+map_name] = obj[environment+"_"+map_name]*score
             sum += obj[environment+"_"+map_name]
@@ -92,7 +89,7 @@ def run(environment, maps, save_data):
             break
     if save_data:
         df = pd.DataFrame(data=beliefs_dict)
-        out = "data/"+environment+"/lrcov_norm_ablation_results.csv"
+        out = "data/"+environment+"/overlap_ablation_results.csv"
         df.to_csv(out)
 
 
